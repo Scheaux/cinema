@@ -11,6 +11,8 @@ class Booking extends Model
 
     protected $fillable = [
         'hallId',
+        'date',
+        'time',
         'seats',
     ];
 

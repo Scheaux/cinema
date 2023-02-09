@@ -33,8 +33,10 @@ function dashboard() {
     const { data: allHalls, error: hallsError } = useGetAllHallsQuery()
     const { data: allMovies, error: moviesError } = useGetAllMoviesQuery()
     const error = hallsError || moviesError
-    const [deactivateHalls] = useDeactivateHallsMutation()
-    const [activateHalls] = useActivateHallsMutation()
+    const [deactivateHalls, { isSuccess: deactivateHallsSuccess }] =
+        useDeactivateHallsMutation()
+    const [activateHalls, { isSuccess: activateHallsSuccess }] =
+        useActivateHallsMutation()
     const [logoutMutation, { isSuccess: isSuccessLogout }] = useLogoutMutation()
 
     useEffect(() => {
@@ -65,7 +67,7 @@ function dashboard() {
 
     useEffect(() => {
         if (halls.length > 0) {
-            setStatus(halls[0].is_active)
+            setStatus(halls.every((hall) => hall.is_active))
         }
     }, [halls])
 
@@ -74,7 +76,7 @@ function dashboard() {
     }
 
     function switchHalls() {
-        if (status === 1) {
+        if (status) {
             deactivateHalls()
             setStatus(0)
         } else {
@@ -93,6 +95,40 @@ function dashboard() {
             router.push('/')
         }
     }, [isSuccessLogout])
+
+    useEffect(() => {
+        if (activateHallsSuccess) {
+            Store.addNotification({
+                title: `Продажи открыты`,
+                type: 'success',
+                insert: 'top',
+                container: 'top-center',
+                animationIn: ['animate__animated', 'animate__fadeIn'],
+                animationOut: ['animate__animated', 'animate__fadeOut'],
+                dismiss: {
+                    duration: 5000,
+                    onScreen: true,
+                },
+            })
+        }
+    }, [activateHallsSuccess])
+
+    useEffect(() => {
+        if (deactivateHallsSuccess) {
+            Store.addNotification({
+                title: `Продажи закрыты`,
+                type: 'success',
+                insert: 'top',
+                container: 'top-center',
+                animationIn: ['animate__animated', 'animate__fadeIn'],
+                animationOut: ['animate__animated', 'animate__fadeOut'],
+                dismiss: {
+                    duration: 5000,
+                    onScreen: true,
+                },
+            })
+        }
+    }, [deactivateHallsSuccess])
 
     return (
         <>

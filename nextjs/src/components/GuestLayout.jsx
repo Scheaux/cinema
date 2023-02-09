@@ -53,10 +53,6 @@ function GuestLayout() {
                         ) {
                             existingHall.times.push(sessions[i].time)
                         }
-
-                        if (_session) {
-                            console.log(_session)
-                        }
                     } else {
                         _showtimes.push({
                             movie,
@@ -250,7 +246,17 @@ function GuestLayout() {
                                                                         key={v4()}
                                                                     >
                                                                         <Link
-                                                                            href={`/hall?hallId=${hall.id}&time=${time}&movieId=${showtime.movie.id}`}
+                                                                            href={`/hall?hallId=${
+                                                                                hall.id
+                                                                            }&time=${time}&movieId=${
+                                                                                showtime
+                                                                                    .movie
+                                                                                    .id
+                                                                            }&date=${moment(
+                                                                                chosenDay
+                                                                            ).format(
+                                                                                'YYYY-MM-DD'
+                                                                            )}`}
                                                                             className="movie-seances__time"
                                                                         >
                                                                             {

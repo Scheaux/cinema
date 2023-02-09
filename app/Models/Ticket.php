@@ -12,9 +12,15 @@ class Ticket extends Model
     protected $fillable = [
         'uid',
         'hallId',
-        'hallName',
+        'movieId',
         'time',
+        'date',
         'totalPrice',
-        
+        'seats',
+        'qr',
+    ];
+
+    protected $casts = [
+        'seats' => 'array',
     ];
 }

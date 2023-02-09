@@ -15,6 +15,14 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
+            $table->string('uid')->unique();
+            $table->string('hallId');
+            $table->string('movieId');
+            $table->string('time');
+            $table->string('date');
+            $table->integer('totalPrice');
+            $table->json('seats');
+            $table->string('qr');
             $table->timestamps();
         });
     }

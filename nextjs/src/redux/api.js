@@ -236,17 +236,17 @@ export const api = createApi({
         }),
 
         getSessionByTime: build.mutation({
-            query: (time) => ({
-                url: `session-by-time?time=${time}`,
+            query: ({ time, date }) => ({
+                url: `session-by-time?time=${time}&date=${date}`,
                 headers: {
                     Accept: 'application/json',
                 },
             }),
         }),
 
-        getBookingByHallId: build.mutation({
-            query: (hallId) => ({
-                url: `booking-by-hallId?hallId=${hallId}`,
+        getBooking: build.mutation({
+            query: ({ hallId, date, time }) => ({
+                url: `get-booking?hallId=${hallId}&date=${date}&time=${time}`,
                 headers: {
                     Accept: 'application/json',
                 },
@@ -261,6 +261,15 @@ export const api = createApi({
                     Accept: 'application/json',
                 },
                 body,
+            }),
+        }),
+
+        findBooking: build.mutation({
+            query: (id) => ({
+                url: `booking/${id}`,
+                headers: {
+                    Accept: 'application/json',
+                },
             }),
         }),
     }),
@@ -287,6 +296,7 @@ export const {
     useGetHallByIdMutation,
     useGetMovieByIdMutation,
     useGetSessionByTimeMutation,
-    useGetBookingByHallIdMutation,
+    useGetBookingMutation,
     useCreateTicketMutation,
+    useFindBookingMutation,
 } = api

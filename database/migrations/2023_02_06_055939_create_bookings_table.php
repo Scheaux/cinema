@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->string('hallId');
+            $table->string('date');
+            $table->string('time');
             $table->json('seats')->nullable();
             $table->timestamps();
         });

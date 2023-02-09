@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
+use App\Models\Hall;
 use App\Models\Session;
 use Illuminate\Http\Request;
 
@@ -33,6 +35,18 @@ class SessionController extends Controller
         ]);
 
         Session::create($request->all());
+        $hall = Hall::where('id', $request['hallId'])->first();
+
+        if (!$hall) {
+            response('did not find hall for booking', 404);
+        }
+
+        Booking::create([
+            'hallId' => $request['hallId'],
+            'date' => $request['date'],
+            'time' => $request['time'],
+            'seats' => $hall['seats'],
+        ]);
 
         return Session::all();
     }
@@ -45,7 +59,6 @@ class SessionController extends Controller
      */
     public function show(Session $session)
     {
-        // $_session = Session::where(['time' => $request['time']])->first();
         return $session;
     }
 
@@ -70,6 +83,7 @@ class SessionController extends Controller
      */
     public function destroy(Session $session)
     {
+        Booking::where('date', $session['date'])->delete();
         $session->delete();
         return Session::all();
     }

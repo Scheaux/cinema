@@ -10,6 +10,7 @@ use App\Models\Booking;
 use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Session;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,47 +44,78 @@ Route::get('/movie-by-id', function(Request $request) {
 
 Route::get('/session-by-time', function(Request $request) {
     $time = $request->query('time');
-    $session = Session::where('time', $time)->first();
+    $date = $request->query('date');
+    $session = Session::where(['time' => $time, 'date' => $date])->first();
     return $session;
 });
 
-Route::get('/booking-by-hallId', function(Request $request) {
+Route::get('/get-booking', function(Request $request) {
     $id = $request->query('hallId');
-    $booking = Booking::where('hallId', $id)->first();
+    $time = $request->query('time');
+    $date = $request->query('date');
+    $booking = Booking::where(['hallId' => $id, 'time' => $time, 'date' => $date])->first();
     return $booking;
 });
 
 Route::post('/create-ticket', function(Request $request) {
     $request->validate([
         'hallId' => 'required',
+        'movieId' => 'required',
+        'time' => 'required',
+        'date' => 'required',
         'seats' => 'required',
     ]);
 
-    $booking = Booking::where('hallId', $request['hallId'])->first();
-    if (!$booking) {
-        return response('did not fing booking', 404);
+    $hall = Hall::where('id', $request['hallId'])->first();
+    $booking = Booking::where(['hallId' => $request['hallId'], 'time' => $request['time'], 'date' => $request['date']])->first();
+    if (!$booking || !$hall) {
+        return response('Hall or booking does not exist', 404);
     }
     $seats = $booking['seats'];
+
+    $totalPrice = 0;
 
     for ($idx = 0; $idx < count($request['seats']); $idx++) {
         for ($i = 0; $i < count($seats); $i++) {
             for ($x = 0; $x < count($seats[$i]); $x++) {
                 if ($i === $request['seats'][$idx]['col'] && $x === $request['seats'][$idx]['row']) {
+                    if ($seats[$i][$x] === 1) {
+                        $totalPrice += $hall['standardPrice'];
+                    } elseif ($seats[$i][$x] === 2) {
+                        $totalPrice += $hall['vipPrice'];
+                    }
                     $seats[$i][$x] = 3;
                 }
             }
         }
     }
 
-    // $booking->update(['seats' => $seats]);
+    $uid = Str::random(60);
 
-
-    // return Str::random(60);
     ob_start();
-    QRcode::png('text', null);
-    $imageString = base64_encode( ob_get_contents() );
+    QRcode::png($uid);
+    $imageString = base64_encode(ob_get_contents());
     ob_end_clean();
-    return $imageString;
+
+    $ticket = Ticket::create([
+        'uid' => $uid,
+        'hallId' => $request['hallId'],
+        'movieId' => $request['movieId'],
+        'totalPrice' => $totalPrice,
+        'time' => $request['time'],
+        'date' => $request['date'],
+        'seats' => $request['seats'],
+        'qr' => $imageString,
+    ]);
+
+    $booking->update(['seats' => $seats]);
+
+    return ['ticketId' => $ticket['uid']];
+});
+
+Route::get('/booking/{id}', function(Request $request, $id) {
+    $ticket = Ticket::where('uid', $id)->first();
+    return $ticket;
 });
 
 Route::apiResource('/bookings', BookingController::class);

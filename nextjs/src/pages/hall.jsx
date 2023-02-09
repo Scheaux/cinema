@@ -1,6 +1,6 @@
 import {
     useCreateTicketMutation,
-    useGetBookingByHallIdMutation,
+    useGetBookingMutation,
     useGetHallByIdMutation,
     useGetMovieByIdMutation,
     useGetSessionByTimeMutation,
@@ -13,12 +13,11 @@ import { v4 } from 'uuid'
 
 function hall() {
     const router = useRouter()
-    const { hallId, movieId, time } = router.query
+    const { hallId, movieId, time, date } = router.query
     const [hall, setHall] = useState(null)
     const [movie, setMovie] = useState(null)
     const [session, setSession] = useState(null)
     const [seats, setSeats] = useState(null)
-    const [totalPrice, setTotalPrice] = useState(0)
     const [chosenSeats, setChosenSeats] = useState([])
     const [getHallMutation, { data: hallData, error: hallError }] =
         useGetHallByIdMutation()
@@ -27,40 +26,26 @@ function hall() {
     const [getSessionMutation, { data: sessionData, error: sessionError }] =
         useGetSessionByTimeMutation()
     const [getBookingMutation, { data: bookingData, error: bookingError }] =
-        useGetBookingByHallIdMutation()
-    const error = hallError || movieError || sessionError || bookingError
+        useGetBookingMutation()
     const [createTicketMutation, { data: ticketData, error: ticketError }] =
         useCreateTicketMutation()
+    const error =
+        hallError || movieError || sessionError || bookingError || ticketError
 
     useEffect(() => {
-        if (hallId) {
+        if (hallId && time && date) {
             getHallMutation(hallId)
-            getBookingMutation(hallId)
+            getBookingMutation({ hallId, time, date })
+            getSessionMutation({ time, date })
         }
-        if (movieId) {
-            getMovieMutation(movieId)
-        }
-        if (time) {
-            getSessionMutation(time)
-        }
-    }, [hallId, movieId, time])
+        if (movieId) getMovieMutation(movieId)
+    }, [hallId, movieId, time, date])
 
     useEffect(() => {
-        if (hallData) {
-            setHall(hallData)
-        }
-
-        if (movieData) {
-            setMovie(movieData)
-        }
-
-        if (sessionData) {
-            setSession(sessionData)
-        }
-
-        if (bookingData) {
-            setSeats(bookingData.seats)
-        }
+        if (hallData) setHall(hallData)
+        if (movieData) setMovie(movieData)
+        if (sessionData) setSession(sessionData)
+        if (bookingData) setSeats(bookingData.seats)
     }, [hallData, movieData, sessionData, bookingData])
 
     useEffect(() => {
@@ -83,34 +68,37 @@ function hall() {
     function selectSeat(rowIdx, colIdx) {
         const _seats = JSON.parse(JSON.stringify(seats))
         const seat = seats[colIdx][rowIdx]
-        if (seat === 1) {
+        if (seat === 1 || seat === 2) {
             _seats[colIdx][rowIdx] = 4
-            setTotalPrice(totalPrice + hall.standardPrice)
-        } else if (seat === 2) {
-            _seats[colIdx][rowIdx] = 4
-            setTotalPrice(totalPrice + hall.vipPrice)
+            setChosenSeats((prev) => [...prev, { col: colIdx, row: rowIdx }])
         } else if (seat === 4) {
             const _seat = bookingData.seats[colIdx][rowIdx]
             _seats[colIdx][rowIdx] = _seat
-
-            if (_seat === 1) setTotalPrice(totalPrice - hall.standardPrice)
-            if (_seat === 2) setTotalPrice(totalPrice - hall.vipPrice)
+            const unwantedIdx = chosenSeats.findIndex(
+                (x) => x.col === colIdx && x.row === rowIdx
+            )
+            const _chosenSeats = JSON.parse(JSON.stringify(chosenSeats))
+            _chosenSeats.splice(unwantedIdx, 1)
+            setChosenSeats(_chosenSeats)
         }
         setSeats(_seats)
-        setChosenSeats((prev) => [...prev, { col: colIdx, row: rowIdx }])
     }
 
     function handleClick() {
         createTicketMutation({
             hallId,
+            movieId,
+            time,
+            date,
             seats: chosenSeats,
         })
     }
 
     useEffect(() => {
         if (ticketData) {
+            router.push(`/booking/${ticketData.ticketId}`)
         }
-    }, [ticketData, ticketError])
+    }, [ticketData])
 
     return (
         <>
@@ -230,7 +218,6 @@ function hall() {
                             Забронировать
                         </button>
                     </section>
-                    {ticketData && <Image src={ticketData} />}
                 </main>
             )}
         </>
