@@ -16,4 +16,15 @@ class Movie extends Model
         'duration',
         'poster',
     ];
+
+    public static function makeNewMovie($request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'country' => 'required',
+            'duration' => 'required',
+        ]);
+
+        Movie::create($request->all());
+    }
 }

@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->string('hallId');
+            $table->unsignedBigInteger('hallId');
+            $table->foreign('hallId')->references('id')->on('halls')->onUpdate('cascade')->onDelete('cascade');
             $table->string('date');
             $table->string('time');
             $table->json('seats')->nullable();

@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Hall;
-use App\Models\Session;
-use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class HallController extends Controller
@@ -28,15 +26,7 @@ class HallController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
-
-        Hall::create($request->all());
-        // Booking::create([
-        //     'hallId' => $hall->id,
-        //     'seats' => $hall->seats,
-        // ]);
+        Hall::makeNewHall($request);
 
         return Hall::all();
     }
@@ -77,9 +67,6 @@ class HallController extends Controller
     public function destroy(Hall $hall)
     {
         $hall->delete();
-        Session::where('hallId', $hall->id)->delete();
-        Booking::where('hallId', $hall->id)->delete();
-        Ticket::where('hallId', $hall->id)->delete();
         return Hall::all();
     }
 

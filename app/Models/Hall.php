@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,4 +22,13 @@ class Hall extends Model
         'size' => 'object',
         'seats' => 'array',
     ];
+
+    public static function makeNewHall($request)
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        Hall::create($request->all());
+    }
 }

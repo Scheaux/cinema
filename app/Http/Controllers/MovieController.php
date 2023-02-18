@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
-use App\Models\Session;
 use Illuminate\Http\Request;
 
 class MovieController extends Controller
@@ -27,14 +26,7 @@ class MovieController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'country' => 'required',
-            'duration' => 'required',
-        ]);
-
-        Movie::create($request->all());
+        Movie::makeNewMovie($request);
 
         return Movie::all();
     }
@@ -71,7 +63,6 @@ class MovieController extends Controller
      */
     public function destroy(Movie $movie)
     {
-        Session::where('movieId', $movie->id)->delete();
         $movie->delete();
         return Movie::all();
     }

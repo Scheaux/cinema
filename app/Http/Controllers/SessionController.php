@@ -27,26 +27,7 @@ class SessionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'hallId' => 'required',
-            'movieId' => 'required',
-            'date' => 'required',
-            'time' => 'required'
-        ]);
-
-        Session::create($request->all());
-        $hall = Hall::where('id', $request['hallId'])->first();
-
-        if (!$hall) {
-            response('did not find hall for booking', 404);
-        }
-
-        Booking::create([
-            'hallId' => $request['hallId'],
-            'date' => $request['date'],
-            'time' => $request['time'],
-            'seats' => $hall['seats'],
-        ]);
+        Session::makeNewSession($request);
 
         return Session::all();
     }

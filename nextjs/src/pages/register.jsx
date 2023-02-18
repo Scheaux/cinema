@@ -103,7 +103,7 @@ function register() {
                         </label>
                         <div className="text-center">
                             <input
-                                value="Авторизоваться"
+                                value="Зарегистрироваться"
                                 type="submit"
                                 className="login__button"
                             />

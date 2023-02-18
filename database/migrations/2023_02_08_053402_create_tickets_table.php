@@ -16,13 +16,15 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->unique();
-            $table->string('hallId');
-            $table->string('movieId');
+            $table->unsignedBigInteger('hallId');
+            $table->foreign('hallId')->references('id')->on('halls')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('movieId');
+            $table->foreign('movieId')->references('id')->on('movies')->onUpdate('cascade')->onDelete('cascade');
             $table->string('time');
             $table->string('date');
             $table->integer('totalPrice');
             $table->json('seats');
-            $table->string('qr');
+            $table->longText('qr')->nullable();
             $table->timestamps();
         });
     }
