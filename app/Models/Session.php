@@ -16,23 +16,16 @@ class Session extends Model
         'time'
     ];
 
-    public static function makeNewSession($request)
+    public static function makeNewSession($data)
     {
-        $request->validate([
-            'hallId' => 'required',
-            'movieId' => 'required',
-            'date' => 'required',
-            'time' => 'required'
-        ]);
+        $hall = Hall::where('id', $data['hallId'])->first();
 
-        $hall = Hall::where('id', $request['hallId'])->first();
-
-        Session::create($request->all());
+        Session::create($data);
 
         Booking::create([
-            'hallId' => $request['hallId'],
-            'date' => $request['date'],
-            'time' => $request['time'],
+            'hallId' => $data['hallId'],
+            'date' => $data['date'],
+            'time' => $data['time'],
             'seats' => $hall['seats'],
         ]);
     }

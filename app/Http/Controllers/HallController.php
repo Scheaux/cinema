@@ -26,7 +26,11 @@ class HallController extends Controller
      */
     public function store(Request $request)
     {
-        Hall::makeNewHall($request);
+        $request->validate([
+            'name' => 'required'
+        ]);
+
+        Hall::makeNewHall($request->all());
 
         return Hall::all();
     }

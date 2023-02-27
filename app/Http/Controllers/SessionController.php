@@ -27,7 +27,14 @@ class SessionController extends Controller
      */
     public function store(Request $request)
     {
-        Session::makeNewSession($request);
+        $request->validate([
+            'hallId' => 'required',
+            'movieId' => 'required',
+            'date' => 'required',
+            'time' => 'required'
+        ]);
+
+        Session::makeNewSession($request->all());
 
         return Session::all();
     }

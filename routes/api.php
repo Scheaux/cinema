@@ -56,7 +56,14 @@ Route::get('/get-booking', function (Request $request) {
 });
 
 Route::post('/create-ticket', function (Request $request) {
-    $ticket = Ticket::makeNewTicket($request);
+    $data = $request->validate([
+        'hallId' => 'required',
+        'movieId' => 'required',
+        'time' => 'required',
+        'date' => 'required',
+        'seats' => 'required',
+    ]);
+    $ticket = Ticket::makeNewTicket($data);
     return ['ticketId' => $ticket['uid']];
 });
 

@@ -23,12 +23,8 @@ class Hall extends Model
         'seats' => 'array',
     ];
 
-    public static function makeNewHall($request)
+    public static function makeNewHall($data)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
-
-        Hall::create($request->all());
+        Hall::create($data);
     }
 }

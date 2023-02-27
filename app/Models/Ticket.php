@@ -26,18 +26,10 @@ class Ticket extends Model
         'seats' => 'array',
     ];
 
-    public static function makeNewTicket($request)
+    public static function makeNewTicket($data)
     {
-        $request->validate([
-            'hallId' => 'required',
-            'movieId' => 'required',
-            'time' => 'required',
-            'date' => 'required',
-            'seats' => 'required',
-        ]);
-
-        $hall = Hall::where('id', $request['hallId'])->first();
-        $booking = Booking::where(['hallId' => $request['hallId'], 'time' => $request['time'], 'date' => $request['date']])->first();
+        $hall = Hall::where('id', $data['hallId'])->first();
+        $booking = Booking::where(['hallId' => $data['hallId'], 'time' => $data['time'], 'date' => $data['date']])->first();
         if (!$booking || !$hall) {
             return response('Hall or booking does not exist', 404);
         }
@@ -45,10 +37,10 @@ class Ticket extends Model
 
         $totalPrice = 0;
 
-        for ($idx = 0; $idx < count($request['seats']); $idx++) {
+        for ($idx = 0; $idx < count($data['seats']); $idx++) {
             for ($i = 0; $i < count($seats); $i++) {
                 for ($x = 0; $x < count($seats[$i]); $x++) {
-                    if ($i === $request['seats'][$idx]['col'] && $x === $request['seats'][$idx]['row']) {
+                    if ($i === $data['seats'][$idx]['col'] && $x === $data['seats'][$idx]['row']) {
                         if ($seats[$i][$x] === 1) {
                             $totalPrice += $hall['standardPrice'];
                         } elseif ($seats[$i][$x] === 2) {
@@ -69,12 +61,12 @@ class Ticket extends Model
 
         $ticket = Ticket::create([
             'uid' => $uid,
-            'hallId' => $request['hallId'],
-            'movieId' => $request['movieId'],
+            'hallId' => $data['hallId'],
+            'movieId' => $data['movieId'],
             'totalPrice' => $totalPrice,
-            'time' => $request['time'],
-            'date' => $request['date'],
-            'seats' => $request['seats'],
+            'time' => $data['time'],
+            'date' => $data['date'],
+            'seats' => $data['seats'],
             'qr' => $imageString,
         ]);
 
